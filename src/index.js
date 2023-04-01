@@ -1,6 +1,8 @@
 const express = require('express')
 const cors = require('cors')
 
+require('./database/sqlite_init');
+
 const app = express();
 
 app.use(cors());
