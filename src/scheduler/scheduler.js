@@ -11,7 +11,7 @@ function createLog() {
     }
 
     const logStream = fs.createWriteStream(fileName, { flags: 'a' });
-    logStream.write(`time:${moment().format('YYYY-MM-DD-hh:mm:ss')}\n`);
+    logStream.write(`\ntime:${moment().format('YYYY-MM-DD-hh:mm:ss')}\n`);
 
     const query = `SELECT serial as SERIAL,battery as BATTERY FROM drones`;
     db.each(query, (err, row) => {
@@ -23,16 +23,15 @@ function createLog() {
         }
     });
 
-    logStream.write(`\n`);
-
     logStream.on('error', (err) => {
         console.error(err.message);
     });
 }
 
+// write log in to logs folder for every 30 seconds
 function createLogInInterval() {
     setInterval(() => {
         createLog()
-    }, 600000);
+    }, 30000);
 }
 module.exports = createLogInInterval();
