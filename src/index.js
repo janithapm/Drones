@@ -1,7 +1,11 @@
-const express = require('express')
-const cors = require('cors')
-
+// initialize the database
 require('./database/sqlite_init');
+
+//start schedlure job
+require('./scheduler/scheduler');
+
+const express = require('express');
+const cors = require('cors');
 
 const app = express();
 

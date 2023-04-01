@@ -5,7 +5,7 @@ function getInstance() {
   if (!instance) {
     instance = new sqlite3.Database('drones.sqlite');
   }
-  intitalQueries(instance)
+  intitalQueries(instance);
   return instance;
 }
 
@@ -15,7 +15,7 @@ function intitalQueries(db) {
     model TEXT NOT NULL,
     weight_limit DECIMAL(5,2) NOT NULL CHECK(weight_limit < 500 and weight_limit > 0),
     battery INTEGER NOT NULL CHECK(battery < 100 and battery > 0),
-    state TEXT NOT NULL CHECK(state IN ('IDLE', 'LOADING', 'LOADED', 'DELIVERING', 'DELIVERED', 'RETURNING'))
+    state TEXT NOT NULL DEFAULT 'IDLE' CHECK(state IN ('IDLE', 'LOADING', 'LOADED', 'DELIVERING', 'DELIVERED', 'RETURNING'))
   ) `;
 
   const CREATE_MEDICATIONS = `CREATE TABLE IF NOT EXISTS medications (
@@ -30,8 +30,10 @@ function intitalQueries(db) {
     medication_code  TEXT CHECK(code GLOB '[A-Z0-9_]*'), 
     delivered BOOLEAN DEFAULT 0
   )`;
+  
   db.run(`${CREATE_DRONES};${CREATE_MEDICATIONS};${CREATE_PAYLOADS};`, (err) => {
     if (err) {
+      console.error(err);
       throw err;
     }
     console.log("database tables are created(if not exists) succsfully");
