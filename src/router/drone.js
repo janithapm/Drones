@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
         return  res.status(404).send({success:true, drones}); 
     }
     catch (error) {
-        return res.status(400).send({success:false, error});
+        return res.status(500).send({success:false, error});
     }
 });
 
@@ -51,7 +51,7 @@ router.post('/:droneSerial/medications', async (req, res) => {
         return response.success ?  res.status(201).send(response) : res.status(400).send(response);
     }
     catch (err) {
-        return res.status(400).send(err);
+        return res.status(500).send(err);
     }
 });
 
@@ -63,7 +63,7 @@ router.get('/:droneSerial/medications', async (req, res) => {
         return res.status(200).send({success:true, payloads:response});
     }
     catch (error) {
-        return res.status(400).send({success:true,error});
+        return res.status(500).send({success:true,error});
     }
 });
 
@@ -78,7 +78,7 @@ router.get('/:droneSerial/battery', async (req, res) => {
         return res.status(400).send(response);
     }
     catch (error) {
-        return res.status(400).send({success:true,error});
+        return res.status(500).send({success:true,error});
     }
 });
 
