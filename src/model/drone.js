@@ -15,11 +15,11 @@ let register = function (drone = {}) {
 
         const INSERT_DRONES = 'INSERT INTO drones (serial, model, weight_limit, battery, state) VALUES (?, ?, ?, ?, ?)';
 
-        return db.run(INSERT_DRONES, droneData, (err) => {
-            if (err) {
-                return resolve({ success: false, error: err });
+        return db.run(INSERT_DRONES, droneData, (error) => {
+            if (error) {
+                return reject({ success: false, error });
             }
-            return reject({ success: true, error: null });
+            return resolve({ success: true, error: null });
         });
     });
 

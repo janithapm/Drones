@@ -32,6 +32,6 @@ function createLog() {
 function createLogInInterval() {
     setInterval(() => {
         createLog()
-    }, 30000);
+    }, 600000);
 }
 module.exports = createLogInInterval();
