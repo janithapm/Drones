@@ -6,8 +6,12 @@ let register = async function (drone = {}) {
         return { success: false, error: "LIMIT_EXCEEDED" };
     }
 
+    if (typeof drone !== "object") {
+        return { success: false, error: "INVALID_PARAMETER" };
+    }
+
     const { serial, model, weight_limit, battery } = drone;
-    if (typeof drone !== "object" || (!serial || !model || !weight_limit || !battery)) {
+    if (!serial || !model || !weight_limit || !battery) {
         return { success: false, error: "INVALID_PARAMETER" };
     }
 
