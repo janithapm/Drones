@@ -88,8 +88,12 @@ let checkDroneValidation = async (serial, payload) => {
 
 }
 
-let loadMedicine = async (droineSerial, payload = []) => {
+let loadMedicine = async (droineSerial, payload = [], location) => {
     try {
+
+        if(!location || location.length == 0) {
+            return { success: false, error: "INVALID_DESTINATION" };   
+        }
 
         const { success: droneValid, error: droneValidationError, drone } = await checkDroneValidation(droineSerial, payload);
         if (!droneValid) {
@@ -134,7 +138,7 @@ let loadMedicine = async (droineSerial, payload = []) => {
             // made it asynchronus since update weight does not need to be updated for the rest of the process
             Medicine.updateWeight(payload.medication_code, payload.medication_code);
 
-            return Payload.add(payload);
+            return Payload.add(payload, location);
         });
 
         return Promise.all(payloadDBInsertPromise).then(async values => {

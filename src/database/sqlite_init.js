@@ -26,9 +26,11 @@ function intitalQueries(db) {
   ) `;
 
   const CREATE_PAYLOADS = `CREATE TABLE IF NOT EXISTS payloads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     drone_serial TEXT(100) NOT NULL,
     medication_code  TEXT CHECK(medication_code GLOB '[A-Z0-9_]*'), 
     weight DECIMAL(5,2) NOT NULL CHECK(weight >= 0),
+    location TEXT(100) NOT NULL,
     delivered BOOLEAN DEFAULT 0
   ) `;
 

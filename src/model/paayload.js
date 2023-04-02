@@ -1,11 +1,11 @@
 const db = require('../database/sqlite_init');
 const utils = require('../utils/utils');
 
-let add = function (payload = {}) {
+let add = function (payload = {}, location) {
     return new Promise((resolve, reject) => {
-        const payloadData = [payload.drone_serial, payload.medication_code, payload.weight];
+        const payloadData = [payload.drone_serial, payload.medication_code, payload.weight, location];
 
-        const INSERT_PAYLOAD = 'INSERT INTO payloads (drone_serial, medication_code, weight) VALUES (?, ?, ?)';
+        const INSERT_PAYLOAD = 'INSERT INTO payloads (drone_serial, medication_code, weight, location) VALUES (?, ?, ?, ?)';
 
         return db.run(INSERT_PAYLOAD, payloadData, (error) => {
             if (error) {
