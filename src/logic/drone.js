@@ -5,7 +5,7 @@ const Medicine = require('../model/medication');
 let register = async function (drone = {}) {
     const addAllowed = await hasFleetLimitExceeded();
     if (!addAllowed) {
-        return { success: false, error: "LIMIT_EXCEEDED" };
+        return { success: false, error: "FLEEET_LIMIT_EXCEEDED" };
     }
 
     if (typeof drone !== "object") {
@@ -55,19 +55,19 @@ let checkDroneValidation = async (serial, payload) => {
         return { success: false, error: "NO_ENOUGH_BATTERY" };
     }
 
-    return { success: true, error: null };
+    return { success: true, error:null, drone };
 
 }
 
 let loadMedicine = async (droineSerial, payload = []) => {
     try {
 
-        const {success:droneValid,  error:droneValidationError} = await checkDroneValidation(droineSerial, payload);
+        const {success:droneValid,  error:droneValidationError, drone} = await checkDroneValidation(droineSerial, payload);
         if (!droneValid){
             return { success: false, error: droneValidationError };
         }
 
-        const { weight_limit } = payload;
+        const { weight_limit } = drone;
 
         await Drone.updateDroneState(droineSerial, "LOADING");
 
