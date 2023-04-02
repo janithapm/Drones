@@ -15,6 +15,11 @@ app.use(express.urlencoded( {extended: true} ));
 
 const port = process.env.PORT || 8080;
 
+const droneRouter = require('./router/drone');
+
+app.use('/drone', droneRouter);
+app.use('*', (req,res)=>{res.status(404).send({message:"resource not found"})});
+
 app.listen(port, () => {
     console.log("server started at the port : " + port + ".");
 });

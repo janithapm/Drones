@@ -60,7 +60,7 @@ function insertMedications(db) {
   medicationData.forEach((row) => {
     db.run(INSERT_MEDICATIONS, row, (err) => {
       if (err) {
-        console.error(row, err);
+        //console.error(row, err);
       }
     });
   });
@@ -78,7 +78,7 @@ function insertDrones(db) {
   droneData.forEach((row) => {
     db.run(INSERT_DRONES, row, (err) => {
       if (err) {
-        console.error(row, err.message);
+        //console.error(row, err.message);
       }
     });
   });
