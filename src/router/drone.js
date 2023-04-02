@@ -3,6 +3,7 @@ const router = express.Router();
 router.use(express.json());
 
 const Drone = require('../logic/drone');
+const Payload = require('../logic/payload');
 
 router.post('/', async (req, res) => {
     try {
@@ -30,7 +31,19 @@ router.post('/:droneSerial/medications', async (req, res) => {
         const {medications} = req.body;
 
         let response = await Drone.loadMedicine(droneSerial, medications);
-        return response.success ?  res.status(200).send(response) : res.status(400).send(response);
+        return response.success ?  res.status(201).send(response) : res.status(400).send(response);
+    }
+    catch (err) {
+        return res.status(400).send(err);
+    }
+});
+
+router.get('/:droneSerial/medications', async (req, res) => {
+    try {
+        const {droneSerial} = req.params;
+
+        let response = await Payload.getPayloadsByDrone(droneSerial);
+        return res.status(200).send({payloads:response});
     }
     catch (err) {
         return res.status(400).send(err);

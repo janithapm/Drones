@@ -15,7 +15,20 @@ let add = function (payload = {}) {
     });
 }
 
+let get = function (droneSerial) {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT * FROM payloads where drone_serial = '${droneSerial}' and delivered = 0`;
+        db.all(query, (err, row) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(row);
+        });
+    });
+}
+
 
 module.exports = {
-    add
+    add,
+    get
 }
