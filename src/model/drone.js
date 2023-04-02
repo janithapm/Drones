@@ -37,9 +37,23 @@ let getCount = function() {
     });
 }
 
+let getBatteryLog = function() {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT serial as SERIAL,battery as BATTERY FROM drones`;
+        db.all(query, (err, row) => {
+            if (err) {
+                return reject(err);
+            } else {
+                return resolve(row);
+            }
+        });
+    });
+}
+
 
 module.exports = {
     Drone,
     add,
     getCount,
+    getBatteryLog,
 }

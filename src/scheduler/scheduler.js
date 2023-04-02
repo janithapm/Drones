@@ -1,6 +1,7 @@
 const db = require('../database/sqlite_init');
 const fs = require('fs');
 const moment = require('moment');
+const Drone = require('../model/drone');
 
 function createLog() {
 
@@ -13,15 +14,21 @@ function createLog() {
     const logStream = fs.createWriteStream(fileName, { flags: 'a' });
     logStream.write(`\ntime:${moment().format('YYYY-MM-DD-hh:mm:ss')}\n`);
 
-    const query = `SELECT serial as SERIAL,battery as BATTERY FROM drones`;
-    db.each(query, (err, row) => {
-        if (err) {
-            console.error(err.message);
-            throw err;
-        } else {
-            logStream.write(`${JSON.stringify(row)}\n`);
-        }
-    });
+    // const query = `SELECT serial as SERIAL,battery as BATTERY FROM drones`;
+    // db.each(query, (err, row) => {
+    //     if (err) {
+    //         console.error(err.message);
+    //         throw err;
+    //     } else {
+    //         logStream.write(`${JSON.stringify(row)}\n`);
+    //     }
+    // });
+
+    Drone.getBatteryLog().then(battery => {
+        logStream.write(`${JSON.stringify(battery)}\n`);
+    }).catch(err =>  {
+        throw err;
+    })
 
     logStream.on('error', (err) => {
         console.error(err.message);
