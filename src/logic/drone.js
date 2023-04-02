@@ -34,27 +34,40 @@ let hasFleetLimitExceeded = async () => {
     }
 }
 
+let checkDroneValidation = async (serial, payload) => {
+    if (!serial || !Array.isArray(payload)) {
+        return { success: false, error: "INVALID_PARAMETER" };
+    }
+
+    let drone = await Drone.getDroneBySerial(serial);
+    if (!drone) {
+        return { success: false, error: "DRONE_NOT_FOUND" };
+    }
+
+    const { battery, state } = drone;
+
+    if (state != "IDLE") {
+        return { success: false, error: "DRONE_NOT_IDLE" };
+    }
+
+    if (!checkDroneHasBattery(battery)) {
+        await Drone.updateDroneState(serial, "IDLE");
+        return { success: false, error: "NO_ENOUGH_BATTERY" };
+    }
+
+    return { success: true, error: null };
+
+}
+
 let loadMedicine = async (droineSerial, payload = []) => {
     try {
-        if (!droineSerial || !Array.isArray(payload)) {
-            return { success: false, error: "INVALID_PARAMETER" };
+
+        const {success:droneValid,  error:droneValidationError} = await checkDroneValidation(droineSerial, payload);
+        if (!droneValid){
+            return { success: false, error: droneValidationError };
         }
 
-        let drone = await Drone.getDroneBySerial(droineSerial);
-        if (!drone) {
-            return { success: false, error: "DRONE_NOT_FOUND" };
-        }
-
-        const { weight_limit, battery, state } = drone;
-
-        if (state != "IDLE") {
-            return { success: false, error: "DRONE_NOT_IDLE" };
-        }
-
-        if (!checkDroneHasBattery(battery)) {
-            await Drone.updateDroneState(droineSerial, "IDLE");
-            return { success: false, error: "NO_ENOUGH_BATTERY" };
-        }
+        const { weight_limit } = payload;
 
         await Drone.updateDroneState(droineSerial, "LOADING");
 
@@ -88,7 +101,7 @@ let loadMedicine = async (droineSerial, payload = []) => {
 
 
         const payloadDBInsertPromise = medicinePayload.map( payload => {
-            
+
             // made it asynchronus since update weight does not need to be updated for the rest of the process
             Medicine.updateWeight(payload.medication_code, payload.medication_code);
 
