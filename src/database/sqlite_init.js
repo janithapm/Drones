@@ -13,7 +13,7 @@ function intitalQueries(db) {
   const CREATE_DRONES = `CREATE TABLE IF NOT EXISTS drones (
     serial TEXT(100) NOT NULL PRIMARY KEY,
     model TEXT NOT NULL CHECK(model IN ('Lightweight', 'Middleweight', 'Cruiserweight', 'Heavyweight')),
-    weight_limit DECIMAL(5,2) NOT NULL CHECK(weight_limit < 500 and weight_limit > 0),
+    weight_limit DECIMAL(5,2) NOT NULL CHECK(weight_limit <= 500 and weight_limit > 0),
     battery INTEGER NOT NULL CHECK(battery <= 100 and battery >= 0),
     state TEXT CHECK(state IN ('IDLE', 'LOADING', 'LOADED', 'DELIVERING', 'DELIVERED', 'RETURNING'))
   ) `;
