@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
         if (resp.success) {
             return res.send(resp);
         }
-        return res.status(400).send(resp.error);
+        return res.status(400).send(resp);
     }
     catch (err) {
         return res.status(400).send(err);

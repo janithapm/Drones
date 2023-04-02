@@ -1,10 +1,16 @@
 const Drone = require('../model/drone');
 
-let register = async function (drone) {
+let register = async function (drone = {}) {
     const addAllowed = await hasFleetLimitExceeded();
-    if (addAllowed) {
+    if (!addAllowed) {
         return { success: false, error: "LIMIT_EXCEEDED" };
     }
+
+    const { serial, model, weight_limit, battery } = drone;
+    if (typeof drone !== "object" || (!serial || !model || !weight_limit || !battery)) {
+        return { success: false, error: "INVALID_PARAMETER" };
+    }
+
     return await Drone.add(drone);
 }
 
