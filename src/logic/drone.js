@@ -128,6 +128,20 @@ let getDronesByState = async (state) => {
     return Drone.getDronesByState(stateInUpperCase);
 }
 
+let getDroneBatteryPercentage = async (serial) => {
+    try {
+        let drone = await Drone.getDroneBySerial(serial);
+        if (!drone) {
+            return { success: false, error: "DRONE_NOT_FOUND" };
+        }
+        return {success: true, drone:{serial, battery_percentage:drone.battery}};
+    }
+    catch (error) {
+        return { success: false, error};
+    }
+
+}
+
 let checkDroneHasBattery = (battery) => {
     return (battery > 25);
 }
@@ -136,4 +150,5 @@ module.exports = {
     register,
     loadMedicine,
     getDronesByState,
+    getDroneBatteryPercentage
 }

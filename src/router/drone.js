@@ -67,4 +67,20 @@ router.get('/:droneSerial/medications', async (req, res) => {
     }
 });
 
+router.get('/:droneSerial/battery', async (req, res) => {
+    try {
+        const {droneSerial} = req.params;
+
+        let response = await Drone.getDroneBatteryPercentage(droneSerial);
+        if (response.success) {
+            return res.status(200).send(response);
+        }
+        return res.status(400).send(response);
+    }
+    catch (error) {
+        return res.status(400).send({success:true,error});
+    }
+});
+
+
 module.exports = router;
