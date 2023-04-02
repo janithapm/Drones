@@ -9,7 +9,7 @@ function Drone(serial, model, weight_limit, battery, state) {
 }
 
 
-let register = function (drone = {}) {
+let add = function (drone = {}) {
     return new Promise((resolve, reject) => {
         const droneData = [drone.serial, drone.model, drone.weight_limit, drone.battery, 'IDLE'];
 
@@ -17,18 +17,29 @@ let register = function (drone = {}) {
 
         return db.run(INSERT_DRONES, droneData, (error) => {
             if (error) {
-                return reject({ success: false, error });
+                return reject({ success: false, error:error.code });
             }
             return resolve({ success: true, error: null });
         });
     });
+}
 
+let getCount = function() {
+    return new Promise((resolve, reject) => {
+        const COUNT_QUERY = 'SELECT COUNT(*) as count FROM drones';
 
-
+        return db.get(COUNT_QUERY, (error, row) => {
+            if (error) {
+                return reject({ success: false, error });
+            }
+            return resolve({success:true, count:row.count});
+        });
+    });
 }
 
 
 module.exports = {
     Drone,
-    register
+    add,
+    getCount,
 }
