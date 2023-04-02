@@ -1,4 +1,5 @@
 const db = require('../database/sqlite_init');
+const utils = require('../utils/utils');
 
 let add = function (drone = {}) {
     return new Promise((resolve, reject) => {
@@ -8,7 +9,7 @@ let add = function (drone = {}) {
 
         return db.run(INSERT_DRONES, droneData, (error) => {
             if (error) {
-                return reject({ success: false, error:error.code });
+                return reject({ success: false, error:utils.matchErrorCode(error.code) });
             }
             return resolve({ success: true, error: null });
         });
@@ -21,7 +22,7 @@ let getCount = function() {
 
         return db.get(COUNT_QUERY, (error, row) => {
             if (error) {
-                return reject({ success: false, error });
+                return reject({ success: false, error:utils.matchErrorCode(error.code) });
             }
             return resolve({success:true, count:row.count});
         });
@@ -33,7 +34,8 @@ let getBatteryLog = function() {
         const query = `SELECT serial as SERIAL,battery as BATTERY FROM drones`;
         db.all(query, (err, row) => {
             if (err) {
-                return reject(err);
+                const error = utils.matchErrorCode(err.code)
+                return reject({ success: false, error});
             } else {
                 return resolve(row);
             }
@@ -46,7 +48,8 @@ let getDroneBySerial = function(serial) {
         const query = `SELECT * FROM drones where serial = '${serial}'`;
         db.get(query, (err, row) => {
             if (err) {
-                reject(err);
+                const error = utils.matchErrorCode(err.code)
+                return reject({ success: false, error});
             }
             resolve(row);
         });
@@ -58,7 +61,8 @@ let updateDroneState = function(serial, state) {
         const query = `UPDATE drones SET state = ? WHERE serial = ?`;
         db.run(query, [state, serial], (err) => {
             if (err) {
-                reject(err);
+                const error = utils.matchErrorCode(err.code)
+                return reject({ success: false, error});
             }
             resolve(true);
         });
@@ -70,13 +74,13 @@ let getDronesByState = function(state) {
         const query = `SELECT * FROM drones where state = '${state}'`;
         db.all(query, (err, row) => {
             if (err) {
-                reject(err);
+                const error = utils.matchErrorCode(err.code)
+                return reject({ success: false, error});
             }
             resolve(row);
         });
     });
 }
-
 
 module.exports = {
     add,

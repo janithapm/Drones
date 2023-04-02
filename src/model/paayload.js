@@ -1,4 +1,5 @@
 const db = require('../database/sqlite_init');
+const utils = require('../utils/utils');
 
 let add = function (payload = {}) {
     return new Promise((resolve, reject) => {
@@ -8,7 +9,7 @@ let add = function (payload = {}) {
 
         return db.run(INSERT_PAYLOAD, payloadData, (error) => {
             if (error) {
-                return reject({ success: false, error:error.code });
+                return reject({ success: false, error: utils.matchErrorCode(error.code) });
             }
             return resolve({ success: true, error: null });
         });

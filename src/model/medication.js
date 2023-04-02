@@ -5,7 +5,8 @@ let updateWeight = function(code, weight) {
         const query = `UPDATE medications SET weight = ? WHERE code = ?`;
         db.run(query, [code, weight], (err) => {
             if (err) {
-                reject(err);
+                const error = utils.matchErrorCode(err.code)
+                return reject({ success: false, error});
             }
             resolve(true);
         });
@@ -17,7 +18,8 @@ let getMedicationsByCode = function(code) {
         const query = `SELECT * FROM medications where code = ${code}`;
         db.get(query, (err, row) => {
             if (err) {
-                reject(err);
+                const error = utils.matchErrorCode(err.code)
+                return reject({ success: false, error});;
             }
             resolve(row);
         });
