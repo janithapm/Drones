@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
 
         let resp = await Drone.register(drone);
         if (resp.success) {
-            return res.send(resp);
+            return res.status(201).send(resp);
         }
         return res.status(400).send(resp);
     }
