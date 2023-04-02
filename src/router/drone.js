@@ -25,6 +25,23 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.get('/', async (req, res) => {
+    try {
+        const {state} = req.query;
+
+        let drones = await Drone.getDronesByState(state);
+
+        if (Array.isArray(drones) && drones.length) {
+            return res.status(200).send({success:true, drones});
+        }
+        return  res.status(404).send({success:true, drones}); 
+    }
+    catch (error) {
+        return res.status(400).send({success:false, error});
+    }
+});
+
+
 router.post('/:droneSerial/medications', async (req, res) => {
     try {
         const {droneSerial} = req.params;
@@ -43,12 +60,11 @@ router.get('/:droneSerial/medications', async (req, res) => {
         const {droneSerial} = req.params;
 
         let response = await Payload.getPayloadsByDrone(droneSerial);
-        return res.status(200).send({payloads:response});
+        return res.status(200).send({success:true, payloads:response});
     }
-    catch (err) {
-        return res.status(400).send(err);
+    catch (error) {
+        return res.status(400).send({success:true,error});
     }
 });
-
 
 module.exports = router;

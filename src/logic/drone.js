@@ -30,7 +30,7 @@ let hasFleetLimitExceeded = async () => {
     }
     catch (err) {
         console.error(err);
-        return false;
+        throw err;
     }
 }
 
@@ -122,11 +122,18 @@ let loadMedicine = async (droineSerial, payload = []) => {
     }
 }
 
+let getDronesByState = async (state) => {
+    stateInUpperCase = state.toUpperCase();
+
+    return Drone.getDronesByState(stateInUpperCase);
+}
+
 let checkDroneHasBattery = (battery) => {
     return (battery > 25);
 }
 
 module.exports = {
     register,
-    loadMedicine
+    loadMedicine,
+    getDronesByState,
 }

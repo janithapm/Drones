@@ -65,6 +65,18 @@ let updateDroneState = function(serial, state) {
     });
 }
 
+let getDronesByState = function(state) {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT * FROM drones where state = '${state}'`;
+        db.all(query, (err, row) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(row);
+        });
+    });
+}
+
 
 module.exports = {
     add,
@@ -72,4 +84,5 @@ module.exports = {
     getBatteryLog,
     getDroneBySerial,
     updateDroneState,
+    getDronesByState,
 }
