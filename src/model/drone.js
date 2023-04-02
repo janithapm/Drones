@@ -1,14 +1,5 @@
 const db = require('../database/sqlite_init');
 
-function Drone(serial, model, weight_limit, battery, state) {
-    this.serial = serial;
-    this.model = model;
-    this.weight_limit = weight_limit;
-    this.battery = battery;
-    this.state = state;
-}
-
-
 let add = function (drone = {}) {
     return new Promise((resolve, reject) => {
         const droneData = [drone.serial, drone.model, drone.weight_limit, drone.battery, 'IDLE'];
@@ -50,10 +41,35 @@ let getBatteryLog = function() {
     });
 }
 
+let getDroneBySerial = function(serial) {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT * FROM drones where serial = '${serial}'`;
+        db.get(query, (err, row) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(row);
+        });
+    });
+}
+
+let updateDroneState = function(serial, state) {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE drones SET state = ? WHERE serial = ?`;
+        db.run(query, [state, serial], (err) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(true);
+        });
+    });
+}
+
 
 module.exports = {
-    Drone,
     add,
     getCount,
     getBatteryLog,
+    getDroneBySerial,
+    updateDroneState,
 }

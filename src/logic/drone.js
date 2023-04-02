@@ -1,4 +1,6 @@
 const Drone = require('../model/drone');
+const Payload = require('../model/paayload');
+const Medicine = require('../model/medication');
 
 let register = async function (drone = {}) {
     const addAllowed = await hasFleetLimitExceeded();
@@ -32,6 +34,86 @@ let hasFleetLimitExceeded = async () => {
     }
 }
 
+let loadMedicine = async (droineSerial, payload = []) => {
+    try {
+        if (!droineSerial || !Array.isArray(payload)) {
+            return { success: false, error: "INVALID_PARAMETER" };
+        }
+
+        let drone = await Drone.getDroneBySerial(droineSerial);
+        if (!drone) {
+            return { success: false, error: "DRONE_NOT_FOUND" };
+        }
+
+        const { weight_limit, battery, state } = drone;
+
+        if (state != "IDLE") {
+            return { success: false, error: "DRONE_NOT_IDLE" };
+        }
+
+        if (!checkDroneHasBattery(battery)) {
+            await Drone.updateDroneState(droineSerial, "IDLE");
+            return { success: false, error: "NO_ENOUGH_BATTERY" };
+        }
+
+        await Drone.updateDroneState(droineSerial, "LOADING");
+
+        let error = null;
+        let totalWeight = 0;
+        let medicineCodes = [];
+        let medicinePayload = []
+
+        for (const singlemedicine of payload) {
+            const { code, weight } = singlemedicine || {};
+            if (!code || !weight || typeof weight !== 'number') {
+                error = { success: false, error: "INVALID_PARAMETER" };
+                break;
+            }
+            totalWeight += weight;
+            medicineCodes.push(code);
+            medicinePayload.push({ drone_serial: droineSerial, medication_code: code, weight });
+        }
+
+        if (error != null) {
+            await Drone.updateDroneState(droineSerial, "IDLE");
+            return error;
+        }
+
+        if (totalWeight > weight_limit) {
+            await Drone.updateDroneState(droineSerial, "IDLE");
+            return { success: false, error: "DRONE_OVERWEIGHT" };
+        }
+
+        // TODO: check if medicine codes are valid and has enough medicine
+
+
+        const payloadDBInsertPromise = medicinePayload.map( payload => {
+            
+            // made it asynchronus since update weight does not need to be updated for the rest of the process
+            Medicine.updateWeight(payload.medication_code, payload.medication_code);
+
+            return Payload.add(payload);
+        });
+
+        return Promise.all(payloadDBInsertPromise).then(async values => {
+            await Drone.updateDroneState(droineSerial, "LOADED");
+            return { success: true, error: null };
+        }).catch(async error => {
+            await Drone.updateDroneState(droineSerial, "IDLE");
+            return { success: false, error: "LOADING_FAILED" };
+        });
+    }
+
+    catch (error) {
+        return { success: false, error };
+    }
+}
+
+let checkDroneHasBattery = (battery) => {
+    return (battery > 25);
+}
+
 module.exports = {
-    register
+    register,
+    loadMedicine
 }

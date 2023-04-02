@@ -28,6 +28,7 @@ function intitalQueries(db) {
   const CREATE_PAYLOADS = `CREATE TABLE IF NOT EXISTS payloads (
     drone_serial TEXT(100) NOT NULL,
     medication_code  TEXT CHECK(medication_code GLOB '[A-Z0-9_]*'), 
+    weight DECIMAL(5,2) NOT NULL CHECK(weight >= 0),
     delivered BOOLEAN DEFAULT 0
   ) `;
 

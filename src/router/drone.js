@@ -4,7 +4,7 @@ router.use(express.json());
 
 const Drone = require('../logic/drone');
 
-router.post('/register', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const drone = req.body;
 
@@ -23,5 +23,19 @@ router.post('/register', async (req, res) => {
         return res.status(400).send(err);
     }
 });
+
+router.post('/:droneSerial/medications', async (req, res) => {
+    try {
+        const {droneSerial} = req.params;
+        const {medications} = req.body;
+
+        let response = await Drone.loadMedicine(droneSerial, medications);
+        return response.success ?  res.status(200).send(response) : res.status(400).send(response);
+    }
+    catch (err) {
+        return res.status(400).send(err);
+    }
+});
+
 
 module.exports = router;
