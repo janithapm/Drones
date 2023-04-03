@@ -11,10 +11,10 @@ Assumptions
 
 Limitations
     01. Unit tests are not added due to the time constraint.
-    02. Once addind medicine to the drone, need to check if medicine codes are valid and has enough medicine(will dilver if I can find the time and will send an update on that).
-    03. Need to add a wrapper for proper output status codes and generalize the response.
-    04. Since we are using a sql based database, the event logs are not being saved in the db(we do not know the time interval that the scheduler should run), the logs will be saved in the logs folder as a text file.
-    05. Default time interval is 30 seconds(You can change this by setting the LOG_INTERVAL environment variable).
+    02. Need to add a wrapper for proper output status codes and generalize the response.
+    03. Since we are using a sql based database, the event logs are not being saved in the db(we do not know the time interval that the scheduler should run), the logs will be saved in the logs folder as a text file.
+    04. Default time interval is 30 seconds(You can change this by setting the LOG_INTERVAL environment variable).
+    05. Medicine image is added as a url, if in case, someone uploaded a huge file, there is no mechanism to reduc the size right now.
 
 API Endpoints (please refer to the attached postman collection for further information)
 The following endpoints are available:
