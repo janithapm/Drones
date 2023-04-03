@@ -2,6 +2,7 @@ const Drone = require('../model/drone');
 const Payload = require('../model/paayload');
 const Medicine = require('../model/medication');
 
+const MedicineLogic = require('../logic/medication');
 function DroneObject(serial, model, weight_limit, battery) {
     this.serial = serial;
     this.model = model;
@@ -16,12 +17,12 @@ DroneObject.prototype.validate = function () {
     if (typeof this.model !== "string" || !["Lightweight", "Middleweight", "Cruiserweight", "Heavyweight"].includes(this.model)) {
         return "MODEL_INVALID";
     }
-    if (typeof this.weight_limit !== "number" || !(this.weight_limit <= 500  && this.weight_limit > 0)) {
+    if (typeof this.weight_limit !== "number" || !(this.weight_limit <= 500 && this.weight_limit > 0)) {
         return "WEIGHT_LIMIT_INVALID";
-      }
-      if (typeof this.battery !== "number" || !(this.battery <= 500  && this.battery > 0)) {
+    }
+    if (typeof this.battery !== "number" || !(this.battery <= 500 && this.battery > 0)) {
         return "BATTERY_CAPACITY_INVALID";
-      }
+    }
 
 }
 
@@ -37,10 +38,10 @@ let register = async function (drone = {}) {
 
     const { serial, model, weight_limit, battery } = drone;
 
-    let droneObject = new DroneObject( serial, model, weight_limit, battery);
+    let droneObject = new DroneObject(serial, model, weight_limit, battery);
     const error = droneObject.validate();
     if (error) {
-        return {success:false, error};
+        return { success: false, error };
     }
     if (!serial || !model || !weight_limit || !battery) {
         return { success: false, error: "INVALID_PARAMETER" };
@@ -91,8 +92,8 @@ let checkDroneValidation = async (serial, payload) => {
 let loadMedicine = async (droineSerial, payload = [], location) => {
     try {
 
-        if(!location || location.length == 0) {
-            return { success: false, error: "INVALID_DESTINATION" };   
+        if (!location || location.length == 0) {
+            return { success: false, error: "INVALID_DESTINATION" };
         }
 
         const { success: droneValid, error: droneValidationError, drone } = await checkDroneValidation(droineSerial, payload);
@@ -106,7 +107,6 @@ let loadMedicine = async (droineSerial, payload = [], location) => {
 
         let error = null;
         let totalWeight = 0;
-        let medicineCodes = [];
         let medicinePayload = []
 
         for (const singlemedicine of payload) {
@@ -116,7 +116,6 @@ let loadMedicine = async (droineSerial, payload = [], location) => {
                 break;
             }
             totalWeight += weight;
-            medicineCodes.push(code);
             medicinePayload.push({ drone_serial: droineSerial, medication_code: code, weight });
         }
 
@@ -130,27 +129,32 @@ let loadMedicine = async (droineSerial, payload = [], location) => {
             return { success: false, error: "DRONE_OVERWEIGHT" };
         }
 
-        // TODO: check if medicine codes are valid and has enough medicine
-
-
-        const payloadDBInsertPromise = medicinePayload.map(payload => {
-
-            // made it asynchronus since update weight does not need to be updated for the rest of the process
-            Medicine.updateWeight(payload.medication_code, payload.medication_code);
-
-            return Payload.add(payload, location);
+        let medicineUpdatePromise = medicinePayload.map(async medicine => {
+            return await MedicineLogic.checkAndUpdateMedicine(medicine.medication_code, medicine.weight);
         });
 
-        return Promise.all(payloadDBInsertPromise).then(async values => {
-            await Drone.updateDroneState(droineSerial, "LOADED");
-            return { success: true, error: null };
+        return Promise.all(medicineUpdatePromise).then(async () => {
+            const payloadPromise = medicinePayload.map(payload => {
+                return Payload.add({ drone_serial: droineSerial, medication_code: payload.medication_code, weight: payload.weight }, location);
+            });
+
+            return Promise.all(payloadPromise).then(async () => {
+                await Drone.updateDroneState(droineSerial, "LOADED");
+                return {success:true, message:"DRONE_LOADED"};
+            }).catch(async error => {
+                await Drone.updateDroneState(droineSerial, "IDLE");
+                return error;
+            })
+
         }).catch(async error => {
             await Drone.updateDroneState(droineSerial, "IDLE");
-            return { success: false, error: "LOADING_FAILED" };
-        });
+            return error;
+        })
+
     }
 
     catch (error) {
+        await Drone.updateDroneState(droineSerial, "IDLE");
         return { success: false, error };
     }
 }

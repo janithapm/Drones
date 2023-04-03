@@ -48,7 +48,7 @@ router.post('/:droneSerial/medications', async (req, res) => {
         const {medications, location} = req.body;
 
         let response = await Drone.loadMedicine(droneSerial, medications, location);
-        return response.success ?  res.status(201).send(response) : res.status(400).send(response);
+        return response.success ?  res.status(200).send(response) : res.status(400).send(response);
     }
     catch (err) {
         return res.status(500).send(err);
